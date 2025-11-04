@@ -16,5 +16,7 @@ r_c_world = [x;y];
 rotation_matrix = [cos(theta), -sin(theta); sin(theta), cos(theta)];    
 q_i_world = rotation_matrix * Plist_box;
 
-Plist_world = r_c_world + q_i_world;
+Plog
+
+
 end

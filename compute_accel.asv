@@ -30,10 +30,9 @@ ax = dd_r_c(1);
 ay = dd_r_c(2);
 q_i_world = Plist_world - [x;y];
 
-q_i_world = [q_i_world; zeros(1,size(q_i_world,2))];
-force_vecs = [force_vecs; zeros(1,size(force_vecs,2))];
+q_i_world = [q_i_world; zeros(length(q_i_world))
 
-dd_theta = 1/box_params.I * sum(cross(q_i_world,force_vecs),2);
-atheta = dd_theta(3);
+atheta = 1/box_params.I * sum(cross(q_i_world,force_vecs),2);
+
 
 end
