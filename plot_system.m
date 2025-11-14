@@ -1,5 +1,11 @@
 function plot_system(t_list, V_list, box_params)
-    figure;
+    %define location and filename where video will be stored
+    input_fname = "video.avi";
+    %create a videowriter, which will write frames to the animation file
+    writerObj = VideoWriter(input_fname);
+    %must call open before writing any frames
+    open(writerObj);
+    fig1 = figure;
     num_zigs = 5;
     w = .1;
     hold on;
@@ -13,7 +19,7 @@ function plot_system(t_list, V_list, box_params)
     end
     txt = text(-9,9,string(t_list(1)));
     axis equal; axis square;
-    axis([-10,10,-10,10]);
+    axis([-10,40,-40,10]);
     t_diff = diff(t_list);
     for j=1:length(t_diff)
         tic()
@@ -28,7 +34,12 @@ function plot_system(t_list, V_list, box_params)
         end
         set(txt, 'string',string(t_list(j+1)))
         drawnow;
+        %capture a frame (what is currently plotted)
+        current_frame = getframe(fig1);
+        %write the frame to the video
+        writeVideo(writerObj,current_frame);
         p=toc();
         pause(max(0,t_diff(j)-p));
     end
+    close(writerObj);
 end
