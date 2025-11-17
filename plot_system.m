@@ -1,11 +1,42 @@
-function plot_system(t_list, V_list, box_params)
-    %define location and filename where video will be stored
-    input_fname = "video.avi";
-    %create a videowriter, which will write frames to the animation file
-    writerObj = VideoWriter(input_fname);
-    %must call open before writing any frames
-    open(writerObj);
+function plot_system(t_list, V_list, t_list_lin, V_list_lin, V_modal, t_max, tit, writerObj, box_params)
     fig1 = figure;
+    fig1.Position = [0 0 1500 1000];
+    t = tiledlayout(3,5);
+    title(t, "Vibration Mode "+tit)
+
+    nexttile(1,[1,2])
+    x_plots = struct();
+    x_plots.lin = plot(t_list_lin, V_list_lin(:,1),".",DisplayName="Linearized", MarkerSize=3);
+    hold on;
+    x_plots.non = plot(0, 0,"--",DisplayName="Non-Linearized");
+    x_plots.mod = plot(0, 0,"-",DisplayName="Modal");
+    ylabel("X");
+    xlim([0,t_max])
+    legend();
+
+    nexttile(6,[1,2])
+    y_plots = struct();
+    y_plots.lin = plot(t_list_lin, V_list_lin(:,2),".",DisplayName="Linearized", MarkerSize=3);
+    hold on;
+    y_plots.non = plot(0, 0,"--",DisplayName="Non-Linearized");
+    y_plots.mod = plot(0, 0,"-",DisplayName="Modal");
+    ylabel("Y");
+    xlim([0,t_max])
+    legend();
+
+    nexttile(11,[1,2])
+    t_plots = struct();
+    t_plots.lin = plot(t_list_lin, V_list_lin(:,3),".",DisplayName="Linearized", MarkerSize=3);
+    hold on;
+    t_plots.non = plot(0, 0,"--",DisplayName="Non-Linearized");
+    t_plots.mod = plot(0, 0,"-",DisplayName="Modal");
+    ylabel("Theta");
+    xlim([0,t_max])
+    legend();
+    xlabel("Time (s)")
+    
+    nexttile(3,[3,3])
+
     num_zigs = 5;
     w = .1;
     hold on;
@@ -17,9 +48,9 @@ function plot_system(t_list, V_list, box_params)
     for i=1:length(box_params.k_list)
         springs = [springs, initialize_spring_plot(num_zigs,w)];
     end
-    txt = text(-9,9,string(t_list(1)));
+    txt = text(-14,14,string(t_list(1)));
     axis equal; axis square;
-    axis([-10,40,-40,10]);
+    axis([-15,15,-15,15]);
     t_diff = diff(t_list);
     for j=1:length(t_diff)
         tic()
@@ -33,6 +64,14 @@ function plot_system(t_list, V_list, box_params)
             update_spring_plot(springs(i),P1(:,i),P2(:,i));
         end
         set(txt, 'string',string(t_list(j+1)))
+
+        set(x_plots.non,'xdata',t_list(1:j+1),'ydata',V_list(1:j+1, 1));
+        set(x_plots.mod,'xdata',t_list(1:j+1),'ydata',V_modal(1:j+1, 1));
+        set(y_plots.non,'xdata',t_list(1:j+1),'ydata',V_list(1:j+1, 2));
+        set(y_plots.mod,'xdata',t_list(1:j+1),'ydata',V_modal(1:j+1, 2));
+        set(t_plots.non,'xdata',t_list(1:j+1),'ydata',V_list(1:j+1, 3));
+        set(t_plots.mod,'xdata',t_list(1:j+1),'ydata',V_modal(1:j+1, 3));
+
         drawnow;
         %capture a frame (what is currently plotted)
         current_frame = getframe(fig1);
@@ -41,5 +80,4 @@ function plot_system(t_list, V_list, box_params)
         p=toc();
         pause(max(0,t_diff(j)-p));
     end
-    close(writerObj);
 end
