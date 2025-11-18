@@ -27,8 +27,11 @@ function simulate_box()
     %load the system parameters into the rate function
     %via an anonymous function
     my_rate_func2 = @(V_in) box_rate_func(0,V_in,box_params);
+
+    % Solver for equilibrium state using newton solver
     Veq = multi_newton_solver(my_rate_func2, zeros(6,1), struct());
     
+    % Set initial state and time window
     x0 = 0;
     y0 = 0;
     theta0 = 0;
@@ -38,8 +41,10 @@ function simulate_box()
     V0 = [x0;y0;theta0;vx0;vy0;vtheta0];
     tspan = [0,6];
     
+    % Jacobian for linearization
     J_approx = approximate_jacobian(my_rate_func2, Veq);
     
+    % Modal analysis 
     [U_mode, omega_n] = eigs(J_approx(4:6,1:3),3);
     omega_n = sqrt(-omega_n);
     
@@ -49,20 +54,24 @@ function simulate_box()
     writerObj = VideoWriter(input_fname);
     %must call open before writing any frames
     open(writerObj);
+    
+    % Sweep perturbation magnitudes and simulate each vibration mode
     for e=-2:0
-    epsilon = 10^e;
+        epsilon = 10^e;
         for w=1:3
             hz = omega_n(w,w)/(2*pi);
             Vpert = Veq + epsilon*[U_mode(:,w);0;0;0];
             
+            % Run linearized simulation
             my_linear_rate = @(t_in,V_in) J_approx*(V_in-Veq);
             % Vpert = Veq + epsilon*V0;
             [t_list_lin,V_list_lin,~, ~, ~] = explicit_RK_variable_step_integration(my_linear_rate, tspan, Vpert, 0.01, rk_method("fehlberg"), 4, 10^-8);
             
-            %run the integration
+            %run nonlinear simulation
             my_rate_func = @(t_in,V_in) box_rate_func(t_in,V_in,box_params);
             [t_list,V_list,~, ~, ~] = explicit_RK_variable_step_integration(my_rate_func, tspan, Vpert, 0.01, rk_method("fehlberg"), 4, 10^-8);
             
+            % Modal analysis
             x_modal = Veq(1)+epsilon*U_mode(1,w)*cos(omega_n(w,w)*t_list);
             y_modal = Veq(2)+epsilon*U_mode(2,w)*cos(omega_n(w,w)*t_list);
             theta_modal = Veq(3)+epsilon*U_mode(3,w)*cos(omega_n(w,w)*t_list);
