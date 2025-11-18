@@ -1,3 +1,5 @@
+% example set of system parameters for testing vibrating box simulation
+% from assignment 5, page 8
 LW = 10; LH = 1; LG = 3;
 m = 1; Ic = (1/12)*(LHˆ2+LWˆ2);
 g = 1; k = 20; k_list = [.5*k,.5*k,2*k,5*k];
@@ -13,6 +15,7 @@ Pbr1_world = Pbr_box + [0;-l0];
 Pbr2_world = Pbr_box + [l0;0];
 P_world = [Pbl1_world,Pbl2_world,Pbr1_world,Pbr2_world];
 P_box = [Pbl_box,Pbl_box,Pbr_box,Pbr_box];
+
 %define system parameters
 box_params = struct();
 box_params.m = m;

@@ -25,15 +25,15 @@ function [ax,ay,atheta] = compute_accel(x,y,theta,box_params)
 Plist_world = compute_rbt(x,y,theta,box_params.P_box); %box corners in world frame
 
 force_vecs = compute_spring_force(box_params.k_list,box_params.l0_list, box_params.P_world, Plist_world);
-dd_r_c = -[0;box_params.g] + 1/box_params.m * sum(force_vecs,2);
+dd_r_c = -[0;box_params.g] + 1/box_params.m * sum(force_vecs,2); % accel = force/mass + gravity
 ax = dd_r_c(1);
 ay = dd_r_c(2);
 q_i_world = Plist_world - [x;y];
 
-q_i_world = [q_i_world; zeros(1,size(q_i_world,2))];
+q_i_world = [q_i_world; zeros(1,size(q_i_world,2))];  % offsets of spring forces about box center
 force_vecs = [force_vecs; zeros(1,size(force_vecs,2))];
 
-dd_theta = 1/box_params.I * sum(cross(q_i_world,force_vecs),2);
+dd_theta = 1/box_params.I * sum(cross(q_i_world,force_vecs),2); % angular accel from torque / I
 atheta = dd_theta(3);
 
 end

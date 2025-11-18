@@ -13,7 +13,7 @@ function Plist_world = compute_rbt(x,y,theta,Plist_box)
 
 r_c_world = [x;y];
 
-rotation_matrix = [cos(theta), -sin(theta); sin(theta), cos(theta)];    
+rotation_matrix = [cos(theta), -sin(theta); sin(theta), cos(theta)];  % transformation matrix between world frame and box frame  
 q_i_world = rotation_matrix * Plist_box;
 
 Plist_world = r_c_world + q_i_world;
